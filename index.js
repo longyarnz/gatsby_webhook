@@ -1,15 +1,22 @@
 const express = require('express');
+const redis = require('redis');
 const fetch = require('node-fetch');
 const statusMonitor = require('express-status-monitor')();
 
+// Initialize ports
+const PORT = process.env.PORT || 4000;
+const REDIS_PORT = process.env.PORT || 6379;
+
 // Initialize express server
 const app = express();
+
+// Initialize redis
+const redisClient = redis.createClient(REDIS_PORT);
 
 // Add health check metrics to server
 app.use(statusMonitor);
 
 app.use(express.json());
-const PORT = process.env.PORT || 4000;
 
 // Expose a default get route tp check current server stats
 app.get('/', statusMonitor.pageRoute);
