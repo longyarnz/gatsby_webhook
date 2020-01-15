@@ -1,17 +1,13 @@
 const express = require('express');
-const redis = require('redis');
 const fetch = require('node-fetch');
 const statusMonitor = require('express-status-monitor')();
+const redisClient = require('./store');
 
 // Initialize ports
 const PORT = process.env.PORT || 4000;
-const REDIS_PORT = process.env.PORT || 6379;
 
 // Initialize express server
 const app = express();
-
-// Initialize redis
-const redisClient = redis.createClient(REDIS_PORT);
 
 // Add health check metrics to server
 app.use(statusMonitor);
@@ -31,12 +27,15 @@ async function pullUsers() {
             response = await response.json();
 
             // Push fetch data into Redis
-            redisClient.LPUSH('users', JSON.stringify(response));
+            redisClient.LPUSH('users', response.login, err => {
+                if (err) console.error(err);
+                else console.log(`${response.login} has been added to queue.`);            });
+
             return response;
         });
         return await Promise.all(requests);
     } catch (error) {
-        console.log(error);
+        console.error(error);
         return 'Unable to fetch users';
     }
 }
