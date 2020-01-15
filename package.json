@@ -8,6 +8,7 @@
     "express": "^4.17.1",
     "express-status-monitor": "^1.2.8",
     "node-fetch": "^2.6.0",
+    "prom-client": "^11.5.3",
     "redis": "^2.8.0"
   },
   "scripts": {

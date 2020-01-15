@@ -26,6 +26,8 @@ This app solves the problem when multiple requests overload a server.
 - Import Prometheus client into the app.
 - Create the metrics we want to capture.
   - Number of requests.
+  - Number of requests added to the queue.
+  - Number of tasks executed in the queue.
   - Time taken to cache each request in Redis.
   - Time taken to process each request.
 

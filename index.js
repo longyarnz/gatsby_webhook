@@ -2,6 +2,13 @@ const express = require('express');
 const fetch = require('node-fetch');
 const statusMonitor = require('express-status-monitor')();
 const redisClient = require('./store');
+const {
+    numberOfRequests,
+    numberOfRequestsAddedtoQueue,
+    numberOfTasksProcessed,
+    timeSpentOnQueuingRequests,
+    timeSpentOnProcessingATask
+} = require('./metrics');
 
 // Initialize ports
 const PORT = process.env.PORT || 4000;
