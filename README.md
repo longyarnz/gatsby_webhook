@@ -1,4 +1,4 @@
-# PSEUDO CODE
+# Pseudo Code
 This app solves the problem when multiple requests overload a server.
 
 ## Step 1
@@ -39,3 +39,30 @@ This app solves the problem when multiple requests overload a server.
 - Create a processor function to run tasks in the redis queue.
 - If the processor function is not running, invoke it in the event listener.
 - If the processor function is running, don't invoke it until it finishes processing the queue.
+
+# How To Use
+```sh
+$: yarn
+```
+OR
+```sh
+$: npm install
+```
+If you have Redis installed on your machine, run the server.
+```sh
+$: sudo service redis-server start
+```
+If you have prometheus installed, then target `localhost:4000` in the `prometheus.yml` config file.  
+Run the server with:
+```sh
+$: yarn start
+```
+OR
+```
+$: npm run start
+```
+To view the current stats of the server, go to http://localhost:4000/ in your browser.  
+To test the solution, go to http://localhost:4000/webhook in your browser.
+
+# Constraints
+Due to the timing of the projects, I was not able to run automated unit tests. I relied on the linter on my code editor and tested manually.
