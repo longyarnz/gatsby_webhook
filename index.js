@@ -23,6 +23,7 @@ async function pullUsers() {
 
     try {
         const requests = names.map(async name => {
+            // Simulate receiving a payload from a GitHub webhook by fetching data from GitHub API
             let response = await fetch(`https://api.github.com/users/${name}`);
             response = await response.json();
 
@@ -41,7 +42,7 @@ async function pullUsers() {
 }
 
 // Get users from GitHub
-app.get('/users', async (req, res) => {
+app.get('/webhook', async (req, res) => {
     const users = await pullUsers();
     res.json(users);
 })
