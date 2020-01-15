@@ -4,7 +4,7 @@ const REDIS_LIST = 'users';
 const REDIS_BACKUP_LIST = 'backup';
 
 // Simulate time spent running server logic (1000ms)
-const TIME_SPENT_PROCESSING = 5000
+const TIME_SPENT_PROCESSING = 1000
 
 // Indicate when the processor is running or idle
 let IS_PROCESSING = false;
