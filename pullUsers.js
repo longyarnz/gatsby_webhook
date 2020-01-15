@@ -16,6 +16,7 @@ async function pullUsers() {
             response = await response.json();
             
             const startTime = Date.now();
+            
             // Push fetch data into Redis
             redisClient.LPUSH('users', response.login, err => {
                 if (err) console.error(err);
@@ -25,8 +26,6 @@ async function pullUsers() {
                 
                 // Track time spent on queuing tasks.
                 const endTime = Date.now() - startTime;
-                console.log(startTime, Date.now());
-                console.log(`Time spent on queing task is: ${endTime}`);
                 timeSpentOnQueuingTasks.observe(endTime);
             });
 

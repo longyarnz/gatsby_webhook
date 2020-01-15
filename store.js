@@ -60,7 +60,6 @@ function processQueue(value) {
 
         // Track time spent on processing task.
         const endTime = Date.now() - startTime;
-        console.log(`Time spent on processing task is: ${endTime}`);
         timeSpentOnProcessingATask.observe(endTime)
 
         // Schedule a new task.
