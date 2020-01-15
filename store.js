@@ -1,4 +1,9 @@
 const redis = require('redis');
+const {
+    numberOfTasksProcessed,
+    timeSpentOnProcessingATask
+} = require('./metrics');
+
 const REDIS_PORT = process.env.PORT || 6379;
 const REDIS_LIST = 'users';
 const REDIS_PROCESSING_LIST = 'backup';
@@ -41,34 +46,44 @@ function listenToPushEvent(key) {
 }
 
 function processQueue(value) {
+    const startTime = Date.now();
+
     setTimeout(() => {
         // Execute log on the task.
         console.log(`${value} has been processed and removed from queue.`);
 
+        // Count number of tasks processed.
+        numberOfTasksProcessed.inc();
+
         // Remove task from the backup list because it has been successfully processed.
         publisher.RPOP(REDIS_PROCESSING_LIST);
 
-        publisher.LLEN(REDIS_LIST, (err, length) => {
-            const hasMoreTasks = length > 0;
-            
-            // Check if there are more tasks in the queue and continue processing.
-            if (hasMoreTasks) {
-                listenToPushEvent(REDIS_LIST);
-            }
-            
-            else {
-                publisher.LLEN(REDIS_PROCESSING_LIST, (err, length) => {
-                    const backupHasMoreTasks = length > 0;
+        // Track time spent on processing task.
+        const endTime = (Date.now() - startTime) / 1000; // convert to seconds.
+        timeSpentOnProcessingATask.observe(endTime)
 
-                    if (backupHasMoreTasks) listenToPushEvent(REDIS_PROCESSING_LIST);
-
-                    // Stop the processor and let the event handler trigger processing.
-                    else IS_PROCESSING = false;
-                })
-            }
-
-        })
+        // Schedule a new task.
+        scheduleNewTask();
     }, TIME_SPENT_PROCESSING);
+}
+
+function scheduleNewTask() {
+    publisher.LLEN(REDIS_LIST, (err, length) => {
+        const hasMoreTasks = length > 0;
+        // Check if there are more tasks in the queue and continue processing.
+        if (hasMoreTasks) {
+            listenToPushEvent(REDIS_LIST);
+        }
+        else {
+            publisher.LLEN(REDIS_PROCESSING_LIST, (err, length) => {
+                const backupHasMoreTasks = length > 0;
+                if (backupHasMoreTasks)
+                listenToPushEvent(REDIS_PROCESSING_LIST);
+                // Stop the processor and let the event handler trigger processing.
+                else IS_PROCESSING = false;
+            });
+        }
+    });
 }
 
 module.exports = publisher;

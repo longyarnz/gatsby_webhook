@@ -2,13 +2,7 @@ const express = require('express');
 const statusMonitor = require('express-status-monitor')();
 
 const pullUsers = require('./pullUsers');
-const {
-    numberOfRequests,
-    numberOfRequestsAddedtoQueue,
-    numberOfTasksProcessed,
-    timeSpentOnQueuingRequests,
-    timeSpentOnProcessingATask
-} = require('./metrics');
+const { numberOfRequests } = require('./metrics');
 
 // Initialize ports
 const PORT = process.env.PORT || 4000;
@@ -27,6 +21,7 @@ app.get('/', statusMonitor.pageRoute);
 // Get users from GitHub
 app.get('/webhook', async (req, res) => {
     const users = await pullUsers();
+    numberOfRequests.inc();
     res.json(users);
 })
 
