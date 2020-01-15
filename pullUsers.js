@@ -25,6 +25,8 @@ async function pullUsers() {
                 
                 // Track time spent on queuing tasks.
                 const endTime = Date.now() - startTime;
+                console.log(startTime, Date.now());
+                console.log(`Time spent on queing task is: ${endTime}`);
                 timeSpentOnQueuingTasks.observe(endTime);
             });
 

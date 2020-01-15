@@ -9,7 +9,7 @@ const REDIS_LIST = 'users';
 const REDIS_PROCESSING_LIST = 'backup';
 
 // Simulate time spent running server logic (1000ms)
-const TIME_SPENT_PROCESSING = 1000
+const TIME_SPENT_PROCESSING = Math.round(Math.random() * 5000);
 
 // Indicate when the processor is running or idle
 let IS_PROCESSING = false;
@@ -59,7 +59,8 @@ function processQueue(value) {
         publisher.RPOP(REDIS_PROCESSING_LIST);
 
         // Track time spent on processing task.
-        const endTime = (Date.now() - startTime) / 1000; // convert to seconds.
+        const endTime = Date.now() - startTime;
+        console.log(`Time spent on processing task is: ${endTime}`);
         timeSpentOnProcessingATask.observe(endTime)
 
         // Schedule a new task.

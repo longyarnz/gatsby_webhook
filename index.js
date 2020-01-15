@@ -22,7 +22,12 @@ app.get('/', statusMonitor.pageRoute);
 app.get('/webhook', async (req, res) => {
     const users = await pullUsers();
     numberOfRequests.inc();
-    res.json(users);
+
+    const data = {
+        number_of_users: users.length,
+        name_of_users: users.map(user => user.login)
+    }
+    res.json(data);
 })
 
 // Metrics endpoint
