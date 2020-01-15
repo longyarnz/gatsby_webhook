@@ -7,7 +7,7 @@ const {
 
 // Method for fetching users from GitHub
 async function pullUsers() {
-    const names = ['longyarnz', 'gearon'];
+    const names = ['longyarnz', 'gearon', 'bellomusodiq', 'lawaldare'];
     
     try {
         const requests = names.map(async name => {
