@@ -10,23 +10,23 @@ const numberOfRequests = new client.Counter({
 });
 
 const numberOfTasksAddedtoQueue = new client.Counter({
-    name: 'number_of_requests',
+    name: 'number_of_added_tasks',
     help: 'Count the number of requests made added to the queue'
 });
 
 const numberOfTasksProcessed = new client.Counter({
-    name: 'number_of_tasks',
+    name: 'number_of_processed_tasks',
     help: 'Count the number of processed in the queue'
 });
 
 const timeSpentOnQueuingTasks = new client.Histogram({
-    name: 'time_spent_on_queuing',
+    name: 'time_spent_on_queuing_tasks',
     help: 'Evaluate the time (milliseconds) spent on queing requests in the redis queue',
     buckets: [1, 2, 5, 6, 10]
 });
 
 const timeSpentOnProcessingATask = new client.Histogram({
-    name: 'time_spent_on_tasks',
+    name: 'time_spent_on_processing_tasks',
     help: 'Evaluate the time (seconds) spent on processing each task in the queue',
     buckets: [1, 2, 5, 6, 10]
 });
