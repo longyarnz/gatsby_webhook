@@ -2,7 +2,7 @@ const express = require('express');
 const statusMonitor = require('express-status-monitor')();
 
 const pullUsers = require('./pullUsers');
-const { numberOfRequests } = require('./metrics');
+const { numberOfRequests, client } = require('./metrics');
 
 // Initialize ports
 const PORT = process.env.PORT || 4000;
@@ -23,6 +23,12 @@ app.get('/webhook', async (req, res) => {
     const users = await pullUsers();
     numberOfRequests.inc();
     res.json(users);
+})
+
+// Metrics endpoint
+app.get('/metrics', (req, res) => {
+    res.set('Content-Type', client.register.contentType)
+    res.end(client.register.metrics())
 })
 
 // Run server.

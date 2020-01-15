@@ -32,6 +32,7 @@ const timeSpentOnProcessingATask = new client.Histogram({
 });
 
 module.exports = {
+    client,
     numberOfRequests,
     numberOfTasksAddedtoQueue,
     numberOfTasksProcessed,
