@@ -1,7 +1,7 @@
 const redis = require('redis');
 const REDIS_PORT = process.env.PORT || 6379;
 const REDIS_LIST = 'users';
-const REDIS_BACKUP_LIST = 'backup';
+const REDIS_PROCESSING_LIST = 'backup';
 
 // Simulate time spent running server logic (1000ms)
 const TIME_SPENT_PROCESSING = 1000
@@ -34,7 +34,7 @@ function listenToPushEvent(key) {
     IS_PROCESSING = true;
 
     // Remove the last task and process but store it in another list incase of failure from downtime.
-    publisher.RPOPLPUSH(key, REDIS_BACKUP_LIST, (err, value) => {
+    publisher.RPOPLPUSH(key, REDIS_PROCESSING_LIST, (err, value) => {
         if (err) console.error(err);
         else processQueue(value);
     });
@@ -46,7 +46,7 @@ function processQueue(value) {
         console.log(`${value} has been processed and removed from queue.`);
 
         // Remove task from the backup list because it has been successfully processed.
-        publisher.RPOP(REDIS_BACKUP_LIST);
+        publisher.RPOP(REDIS_PROCESSING_LIST);
 
         publisher.LLEN(REDIS_LIST, (err, length) => {
             const hasMoreTasks = length > 0;
@@ -57,10 +57,10 @@ function processQueue(value) {
             }
             
             else {
-                publisher.LLEN(REDIS_BACKUP_LIST, (err, length) => {
+                publisher.LLEN(REDIS_PROCESSING_LIST, (err, length) => {
                     const backupHasMoreTasks = length > 0;
 
-                    if (backupHasMoreTasks) listenToPushEvent(REDIS_BACKUP_LIST);
+                    if (backupHasMoreTasks) listenToPushEvent(REDIS_PROCESSING_LIST);
 
                     // Stop the processor and let the event handler trigger processing.
                     else IS_PROCESSING = false;

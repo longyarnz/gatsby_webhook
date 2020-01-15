@@ -19,6 +19,7 @@ This app solves the problem when multiple requests overload a server.
 - Create a processor function to run tasks in the redis queue.
 - If the processor function is not running, invoke it in the event listener.
 - If the processor function is running, don't invoke it until it finishes processing the queue.
+- Add a processing queue that receives a task that is currently being processed.
 
 ## Step 3
 - Install Prometheus.
