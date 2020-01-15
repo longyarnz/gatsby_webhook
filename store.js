@@ -1,9 +1,10 @@
 const redis = require('redis');
 const REDIS_PORT = process.env.PORT || 6379;
 const REDIS_LIST = 'users';
+const REDIS_BACKUP_LIST = 'backup';
 
 // Simulate time spent running server logic (1000ms)
-const TIME_SPENT_PROCESSING = 1000
+const TIME_SPENT_PROCESSING = 5000
 
 // Indicate when the processor is running or idle
 let IS_PROCESSING = false;
@@ -13,9 +14,12 @@ const subscriber = redis.createClient(REDIS_PORT);
 const publisher = redis.createClient(REDIS_PORT);
 
 // Subscribe to LPUSH event.
-const EVENT_SET = '__keyevent@0__:lpush';
+const EVENT_LPUSH = '__keyevent@0__:lpush';
+
+// Subscribe to RPUSH event.
+const EVENT_RPUSH = '__keyevent@0__:rpush';
 subscriber.config('set', 'notify-keyspace-events', 'KEA');
-subscriber.SUBSCRIBE(EVENT_SET);
+subscriber.SUBSCRIBE(EVENT_LPUSH, EVENT_RPUSH);
 
 // Add eventlistener to subscriber
 subscriber.on('message', (channel, key) => {
@@ -28,7 +32,9 @@ subscriber.on('message', (channel, key) => {
 
 function listenToPushEvent(key) {
     IS_PROCESSING = true;
-    publisher.RPOP(key, (err, value) => {
+
+    // Remove the last task and process but store it in another list incase of failure from downtime.
+    publisher.RPOPLPUSH(key, REDIS_BACKUP_LIST, (err, value) => {
         if (err) console.error(err);
         else processQueue(value);
     });
@@ -36,17 +42,31 @@ function listenToPushEvent(key) {
 
 function processQueue(value) {
     setTimeout(() => {
+        // Execute log on the task.
         console.log(`${value} has been processed and removed from queue.`);
+
+        // Remove task from the backup list because it has been successfully processed.
+        publisher.RPOP(REDIS_BACKUP_LIST);
+
         publisher.LLEN(REDIS_LIST, (err, length) => {
-            const hasMoreRequests = length > 0;
-    
-            // Continue processing the queue without blocking the queue.
-            if (hasMoreRequests) {
+            const hasMoreTasks = length > 0;
+            
+            // Check if there are more tasks in the queue and continue processing.
+            if (hasMoreTasks) {
                 listenToPushEvent(REDIS_LIST);
             }
+            
+            else {
+                publisher.LLEN(REDIS_BACKUP_LIST, (err, length) => {
+                    const backupHasMoreTasks = length > 0;
 
-            // Stop the processor and let the event handler trigger processing.
-            else IS_PROCESSING = false;
+                    if (backupHasMoreTasks) listenToPushEvent(REDIS_BACKUP_LIST);
+
+                    // Stop the processor and let the event handler trigger processing.
+                    else IS_PROCESSING = false;
+                })
+            }
+
         })
     }, TIME_SPENT_PROCESSING);
 }
