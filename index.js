@@ -21,13 +21,18 @@ app.use(express.json());
 // Expose a default get route tp check current server stats
 app.get('/', statusMonitor.pageRoute);
 
+// Method for fetching users from GitHub
 async function pullUsers() {
     const names = ['longyarnz', 'gearon'];
+
     try {
-        console.log('Pulling users from GitHub');
         const requests = names.map(async name => {
-            const fetchUsers = await fetch(`https://api.github.com/users/${name}`);
-            return await fetchUsers.json();
+            let response = await fetch(`https://api.github.com/users/${name}`);
+            response = await response.json();
+
+            // Push fetch data into Redis
+            redisClient.LPUSH('users', JSON.stringify(response));
+            return response;
         });
         return await Promise.all(requests);
     } catch (error) {
