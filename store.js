@@ -77,8 +77,7 @@ function scheduleNewTask() {
         else {
             publisher.LLEN(REDIS_PROCESSING_LIST, (err, length) => {
                 const backupHasMoreTasks = length > 0;
-                if (backupHasMoreTasks)
-                listenToPushEvent(REDIS_PROCESSING_LIST);
+                if (backupHasMoreTasks) listenToPushEvent(REDIS_PROCESSING_LIST);
                 // Stop the processor and let the event handler trigger processing.
                 else IS_PROCESSING = false;
             });
