@@ -9,7 +9,7 @@
     "express-status-monitor": "^1.2.8",
     "node-fetch": "^2.6.0",
     "prom-client": "^11.5.3",
-    "redis": "^2.8.0"
+    "redis": "^3.1.1"
   },
   "scripts": {
     "start": "node .",
